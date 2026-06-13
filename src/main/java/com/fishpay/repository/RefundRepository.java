@@ -1,5 +1,8 @@
 package com.fishpay.repository;
 
-public class RefundRepository {
+import com.fishpay.entity.Refund;
+import org.springframework.data.jpa.repository.JpaRepository;
 
+public interface RefundRepository
+        extends JpaRepository<Refund, Long>{
 }

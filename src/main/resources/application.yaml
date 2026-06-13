@@ -7,6 +7,10 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
 
+  razorpay:
+    key-id: ${RAZORPAY_KEY_ID}
+    key-secret: ${RAZORPAY_KEY_SECRET}
+
   jpa:
     hibernate:
       ddl-auto: update

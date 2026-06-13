@@ -1,5 +1,8 @@
 package com.fishpay.repository;
 
-public class InvoiceRepository {
+import com.fishpay.entity.Invoice;
+import org.springframework.data.jpa.repository.JpaRepository;
 
+public interface InvoiceRepository
+        extends JpaRepository<Invoice, Long>{
 }
