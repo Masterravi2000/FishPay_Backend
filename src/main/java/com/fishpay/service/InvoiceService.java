@@ -4,25 +4,27 @@ import com.fishpay.dto.GenerateInvoiceRequest;
 import com.fishpay.dto.ProductDto;
 import com.fishpay.entity.Invoice;
 import com.fishpay.repository.InvoiceRepository;
-import com.razorpay.RazorpayException;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 
 @Service
 public class InvoiceService {
     private final InvoiceRepository invoiceRepository;
     private final InvoiceItemService invoiceItemService;
+    private final PdfService pdfService;
+    private final CloudinaryService cloudinaryService;
 
-    public InvoiceService(InvoiceRepository invoiceRepository, InvoiceItemService invoiceItemService){
+    public InvoiceService(InvoiceRepository invoiceRepository, InvoiceItemService invoiceItemService, PdfService pdfService, CloudinaryService cloudinaryService){
         this.invoiceRepository = invoiceRepository;
         this.invoiceItemService = invoiceItemService;
+        this.pdfService = pdfService;
+        this.cloudinaryService = cloudinaryService;
     }
 
     public Invoice generateInvoice (GenerateInvoiceRequest request) {
@@ -56,6 +58,19 @@ public class InvoiceService {
 
         //now call the saveInvoiceItems function here for saving the product details into invoice_items Table
         invoiceItemService.saveInvoiceItems(savedInvoice.getId(),products);
+
+        //now generate the invoice  pdf and gets its url
+        File pdf = pdfService.generatePDF(savedInvoice);
+
+        //now save the generated PDF file on cloudinary
+        String invoiceUrl = cloudinaryService.uploadPDF(pdf);
+
+        //now after upload the pdf on cloudinary a url is returned now set that url in invoiceUrl
+        savedInvoice.setInvoiceUrl(invoiceUrl);
+
+        //now save the invoice again for reflecting newly added data
+        savedInvoice =  invoiceRepository.save(savedInvoice);
+
         return savedInvoice;
     }
 }

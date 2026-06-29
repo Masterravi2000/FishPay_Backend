@@ -18,10 +18,12 @@ public class PaymentService {
     private String keySecret;
     private final PaymentRepository paymentRepository;
     private final RazorpayClient razorpayClient;
+    private final InvoiceService invoiceService;
 
-    public PaymentService(PaymentRepository paymentRepository, RazorpayClient razorpayClient){
+    public PaymentService(PaymentRepository paymentRepository, RazorpayClient razorpayClient, InvoiceService invoiceService){
         this.paymentRepository = paymentRepository;
         this.razorpayClient = razorpayClient;
+        this.invoiceService = invoiceService;
     }
 
     //createOrder method
@@ -99,6 +101,19 @@ public class PaymentService {
         savePaymentRequest.setUserId(request.getUserId());
         //now call the savePayment method for saving the payment
         savePayment(savePaymentRequest);
+
+        //Create a GenerateInvoiceRequest object and populate it
+        GenerateInvoiceRequest generateInvoiceRequest = new GenerateInvoiceRequest();
+        generateInvoiceRequest.setPaymentId(paymentId);
+        generateInvoiceRequest.setOrderId(orderId);
+        generateInvoiceRequest.setUserId(request.getUserId());
+        generateInvoiceRequest.setPaymentMethod(request.getPaymentMethod());
+        generateInvoiceRequest.setPaymentStatus("SUCCESS");
+        generateInvoiceRequest.setProducts(request.getProducts());
+        generateInvoiceRequest.setDeliveryCharges(request.getDeliveryCharges());
+        generateInvoiceRequest.setTotalAmount(request.getTotalAmount());
+        //now call generateInvoice() by passing generateInvoiceRequest object as an argument
+        invoiceService.generateInvoice(generateInvoiceRequest);
 
         return true;
     }
