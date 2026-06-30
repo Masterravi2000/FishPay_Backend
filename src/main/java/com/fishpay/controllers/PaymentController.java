@@ -2,6 +2,7 @@ package com.fishpay.controllers;
 
 import com.fishpay.dto.CreateOrderRequest;
 import com.fishpay.dto.CreateOrderResponse;
+import com.fishpay.dto.GenerateInvoiceResponse;
 import com.fishpay.dto.VerifyPaymentRequest;
 import com.fishpay.service.PaymentService;
 import com.razorpay.RazorpayException;
@@ -22,7 +23,7 @@ public class PaymentController {
     }
 
     @PostMapping("/verify-signature")
-    public boolean verifySignature(@RequestBody VerifyPaymentRequest request) throws RazorpayException {
+    public GenerateInvoiceResponse verifySignature(@RequestBody VerifyPaymentRequest request) throws RazorpayException {
         return paymentService.verifySignature(request);
     }
 }

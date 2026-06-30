@@ -74,7 +74,7 @@ public class PaymentService {
         return payment;
     }
 
-    public boolean verifySignature(VerifyPaymentRequest request) throws RazorpayException {
+    public GenerateInvoiceResponse verifySignature(VerifyPaymentRequest request) throws RazorpayException {
         //extract the value from the memory already saved via dto
         String paymentId = request.getRazorpayPaymentId();
         String orderId = request.getRazorpayOrderId();
@@ -112,9 +112,10 @@ public class PaymentService {
         generateInvoiceRequest.setProducts(request.getProducts());
         generateInvoiceRequest.setDeliveryCharges(request.getDeliveryCharges());
         generateInvoiceRequest.setTotalAmount(request.getTotalAmount());
-        //now call generateInvoice() by passing generateInvoiceRequest object as an argument
-        invoiceService.generateInvoice(generateInvoiceRequest);
 
-        return true;
+        //now call the generateInvoice() by passing generateInvoiceRequest object and save its output into the response
+        GenerateInvoiceResponse response = invoiceService.generateInvoice(generateInvoiceRequest);
+
+        return response;
     }
 }

@@ -1,6 +1,7 @@
 package com.fishpay.service;
 
 import com.fishpay.dto.GenerateInvoiceRequest;
+import com.fishpay.dto.GenerateInvoiceResponse;
 import com.fishpay.dto.ProductDto;
 import com.fishpay.entity.Invoice;
 import com.fishpay.repository.InvoiceRepository;
@@ -27,7 +28,7 @@ public class InvoiceService {
         this.cloudinaryService = cloudinaryService;
     }
 
-    public Invoice generateInvoice (GenerateInvoiceRequest request) {
+    public GenerateInvoiceResponse generateInvoice (GenerateInvoiceRequest request) {
         //first Extract the data from memory already saved via dto via getter
         String paymentId = request.getPaymentId();
         String orderId = request.getOrderId();
@@ -71,6 +72,19 @@ public class InvoiceService {
         //now save the invoice again for reflecting newly added data
         savedInvoice =  invoiceRepository.save(savedInvoice);
 
-        return savedInvoice;
+        //Create the object of GenerateInvoiceResponse in order to send this as the response
+        GenerateInvoiceResponse response = new GenerateInvoiceResponse();
+        response.setInvoiceNumber(savedInvoice.getInvoiceNumber());
+        response.setInvoiceUrl(savedInvoice.getInvoiceUrl());
+        response.setPaymentId(savedInvoice.getPaymentId());
+        response.setOrderId(savedInvoice.getOrderId());
+        response.setPaymentMethod(savedInvoice.getPaymentMethod());
+        response.setPaymentStatus(savedInvoice.getPaymentStatus());
+        response.setOrderTime(savedInvoice.getOrderTime());
+        response.setDeliveryCharges(savedInvoice.getDeliveryCharges());
+        response.setTotalAmount(savedInvoice.getTotalAmount());
+        response.setProducts(products);
+
+        return response;
     }
 }
