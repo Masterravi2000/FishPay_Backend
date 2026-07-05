@@ -89,6 +89,11 @@ public class PaymentService {
         //now give this json object called attribute in razorpay-signature-verification function provided by razorpay via utils
         Utils.verifyPaymentSignature(attribute,keySecret);
 
+        //Fetch payment details from Razorpay using paymentId
+        com.razorpay.Payment razorpayPayment = razorpayClient.payments.fetch(paymentId);
+        //Extract the actual payment method
+        String paymentMethod = razorpayPayment.get("method").toString();
+
         //creating the object SavePaymentRequest dto for savePayment method required fields and data
         SavePaymentRequest savePaymentRequest = new SavePaymentRequest();
         //now populating the newly created empty savePaymentRequest object via setters
@@ -97,7 +102,7 @@ public class PaymentService {
         savePaymentRequest.setAmount(request.getAmount());
         savePaymentRequest.setCurrency(request.getCurrency());
         savePaymentRequest.setStatus("SUCCESS");
-        savePaymentRequest.setPaymentMethod(request.getPaymentMethod());
+        savePaymentRequest.setPaymentMethod(paymentMethod);
         savePaymentRequest.setUserId(request.getUserId());
         //now call the savePayment method for saving the payment
         savePayment(savePaymentRequest);
@@ -107,7 +112,7 @@ public class PaymentService {
         generateInvoiceRequest.setPaymentId(paymentId);
         generateInvoiceRequest.setOrderId(orderId);
         generateInvoiceRequest.setUserId(request.getUserId());
-        generateInvoiceRequest.setPaymentMethod(request.getPaymentMethod());
+        generateInvoiceRequest.setPaymentMethod(paymentMethod);
         generateInvoiceRequest.setPaymentStatus("SUCCESS");
         generateInvoiceRequest.setProducts(request.getProducts());
         generateInvoiceRequest.setDeliveryCharges(request.getDeliveryCharges());

@@ -2,12 +2,12 @@ package com.fishpay.service;
 
 import com.fishpay.dto.GenerateInvoiceRequest;
 import com.fishpay.dto.GenerateInvoiceResponse;
+import com.fishpay.dto.InvoiceStatusResponse;
 import com.fishpay.dto.ProductDto;
 import com.fishpay.entity.Invoice;
 import com.fishpay.repository.InvoiceRepository;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -18,14 +18,12 @@ import java.util.UUID;
 public class InvoiceService {
     private final InvoiceRepository invoiceRepository;
     private final InvoiceItemService invoiceItemService;
-    private final PdfService pdfService;
-    private final CloudinaryService cloudinaryService;
+    private final InvoiceAsyncService invoiceAsyncService;
 
-    public InvoiceService(InvoiceRepository invoiceRepository, InvoiceItemService invoiceItemService, PdfService pdfService, CloudinaryService cloudinaryService){
+    public InvoiceService(InvoiceRepository invoiceRepository, InvoiceItemService invoiceItemService, InvoiceAsyncService invoiceAsyncService){
         this.invoiceRepository = invoiceRepository;
         this.invoiceItemService = invoiceItemService;
-        this.pdfService = pdfService;
-        this.cloudinaryService = cloudinaryService;
+        this.invoiceAsyncService = invoiceAsyncService;
     }
 
     public GenerateInvoiceResponse generateInvoice (GenerateInvoiceRequest request) {
@@ -60,18 +58,6 @@ public class InvoiceService {
         //now call the saveInvoiceItems function here for saving the product details into invoice_items Table
         invoiceItemService.saveInvoiceItems(savedInvoice.getId(),products);
 
-        //now generate the invoice  pdf and gets its url
-        File pdf = pdfService.generatePDF(savedInvoice);
-
-        //now save the generated PDF file on cloudinary
-        String invoiceUrl = cloudinaryService.uploadPDF(pdf);
-
-        //now after upload the pdf on cloudinary a url is returned now set that url in invoiceUrl
-        savedInvoice.setInvoiceUrl(invoiceUrl);
-
-        //now save the invoice again for reflecting newly added data
-        savedInvoice =  invoiceRepository.save(savedInvoice);
-
         //Create the object of GenerateInvoiceResponse in order to send this as the response
         GenerateInvoiceResponse response = new GenerateInvoiceResponse();
         response.setInvoiceNumber(savedInvoice.getInvoiceNumber());
@@ -85,6 +71,20 @@ public class InvoiceService {
         response.setTotalAmount(savedInvoice.getTotalAmount());
         response.setProducts(products);
 
+        //now call the async function for PDF & its url processing and saving separately
+        invoiceAsyncService.processInvoicePDFAsync(savedInvoice.getId());
+
+        return response;
+    }
+
+    public InvoiceStatusResponse invoiceStatusResponse (String paymentId) {
+        //fetch that invoice via paymentId
+        Invoice invoice = invoiceRepository.findByPaymentId(paymentId);
+        //now create the InvoiceStatusResponse object because that what we need to respond and store the required data
+        InvoiceStatusResponse response = new InvoiceStatusResponse();
+        response.setPaymentId(invoice.getPaymentId());
+        response.setInvoiceUrl(invoice.getInvoiceUrl());
+        //now return the InvoiceStatusResponse response
         return response;
     }
 }

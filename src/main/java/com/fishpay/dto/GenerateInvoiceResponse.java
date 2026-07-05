@@ -1,5 +1,7 @@
 package com.fishpay.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,6 +16,7 @@ public class GenerateInvoiceResponse {
     private String paymentMethod;
     private String paymentStatus;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss a")
     private LocalDateTime orderTime;
 
     private BigDecimal deliveryCharges;
