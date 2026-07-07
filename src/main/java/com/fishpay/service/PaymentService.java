@@ -1,5 +1,7 @@
 package com.fishpay.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fishpay.dto.*;
 import com.fishpay.entity.Payment;
 import com.fishpay.repository.PaymentRepository;
@@ -10,12 +12,16 @@ import com.razorpay.Utils;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
+
+import java.io.IOException;
 import java.math.BigDecimal;
 
 @Service
 public class PaymentService {
     @Value("${spring.razorpay.key-secret}")
     private String keySecret;
+    @Value("${spring.razorpay.webhook-secret}")
+    private String webhookSecret;
     private final PaymentRepository paymentRepository;
     private final RazorpayClient razorpayClient;
     private final InvoiceService invoiceService;
@@ -122,5 +128,75 @@ public class PaymentService {
         GenerateInvoiceResponse response = invoiceService.generateInvoice(generateInvoiceRequest);
 
         return response;
+    }
+
+    public void handleWebhook(String signature, String payload) {
+        try {
+            System.out.println("Webhook received");
+            //now verify the webhook by taking the verification function from utils same as verify signature
+            Utils.verifyWebhookSignature(payload, signature, webhookSecret);
+            System.out.println("Webhook signature verified successfully");
+
+            //now create a JsonNode a tree like structure not JSON Obj nor Java Obj
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode root = objectMapper.readTree(payload);
+
+            String event = root.get("event").asText();
+
+            if (event.equals("payment.captured")) {
+                //get the payment entity from webhook payload sent by razorpay
+                JsonNode payment = root.get("payload").get("payment").get("entity");
+                //now extract the required data
+                String paymentId = payment.get("id").asText();
+                String orderId = payment.get("order_id").asText();
+                String status = payment.get("status").asText();
+                String paymentMethod = payment.get("method").asText();
+
+                //Create a variable for using it fetching the payment entry from the payment table
+                Payment dbPayment = null;
+                //now start the delay and retry loop for fetching the payment entry
+                for (int i = 0;i < 5; i++) {
+                    dbPayment = paymentRepository.findByOrderId(orderId);
+                    //check is this payment entry is available or not
+                    if (dbPayment != null) {
+                        System.out.println("payment entry found successfully headed for reconciliation");
+                        //then break this loop and go for  reconciliation
+                        break;
+                    }
+                    System.out.println("payment entry not found at this point retry initiated");
+                    //else delay the next retry of this loop
+                    Thread.sleep(500);
+                }
+
+                if (dbPayment == null) {
+                    return;
+                }
+
+                //now check if status matches or not if not then change
+                if(!status.equals(dbPayment.getStatus())) {
+                    dbPayment.setStatus(status);
+                }
+
+                //now check weather payment method is matching or not if not then set the payment method
+                if(dbPayment.getPaymentMethod() == null) {
+                    dbPayment.setPaymentMethod(paymentMethod);
+                }
+
+                //now save the changes into the db
+                paymentRepository.save(dbPayment);
+                System.out.println("Reconciliation completed");
+
+            } else if (event.equals("payment.failed")) {
+                //handle failed payment
+            } else if (event.equals("order.paid")) {
+                //handle order paid
+            } else if (event.equals("refund.processed")) {
+                // handle refund
+            }
+
+            System.out.println(event);
+        } catch (RazorpayException | IOException | InterruptedException e) {
+            System.out.println(e.getMessage());
+        }
     }
 }

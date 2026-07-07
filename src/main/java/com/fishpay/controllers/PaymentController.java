@@ -6,6 +6,7 @@ import com.fishpay.dto.GenerateInvoiceResponse;
 import com.fishpay.dto.VerifyPaymentRequest;
 import com.fishpay.service.PaymentService;
 import com.razorpay.RazorpayException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -25,5 +26,14 @@ public class PaymentController {
     @PostMapping("/verify-signature")
     public GenerateInvoiceResponse verifySignature(@RequestBody VerifyPaymentRequest request) throws RazorpayException {
         return paymentService.verifySignature(request);
+    }
+
+    @PostMapping("/webhook")
+    public ResponseEntity<String> handleWebhook(
+            @RequestHeader("X-Razorpay-Signature") String signature,
+            @RequestBody String payload
+    ) {
+        paymentService.handleWebhook(signature, payload);
+        return ResponseEntity.ok("Webhook received");
     }
 }

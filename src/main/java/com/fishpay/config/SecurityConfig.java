@@ -18,6 +18,7 @@ public class SecurityConfig {
                                 "/api/v1/health",
                                 "/api/v1/payments/create-order",
                                 "/api/v1/payments/verify-signature",
+                                "/api/v1/payments/webhook",
                                 "/api/v1/invoices/invoice-status/**"
                         ).permitAll()
                         .anyRequest().authenticated()
