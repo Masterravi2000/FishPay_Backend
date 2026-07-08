@@ -1,16 +1,17 @@
 package com.fishpay.service;
 
-import com.fishpay.dto.GenerateInvoiceRequest;
-import com.fishpay.dto.GenerateInvoiceResponse;
-import com.fishpay.dto.InvoiceStatusResponse;
-import com.fishpay.dto.ProductDto;
+import com.fishpay.dto.*;
 import com.fishpay.entity.Invoice;
 import com.fishpay.repository.InvoiceRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -85,6 +86,42 @@ public class InvoiceService {
         response.setPaymentId(invoice.getPaymentId());
         response.setInvoiceUrl(invoice.getInvoiceUrl());
         //now return the InvoiceStatusResponse response
+        return response;
+    }
+
+    public InvoiceHistoryResponse getInvoiceHistory (int page, int size) {
+        //fetch paginated invoices
+        Page<Invoice> invoices = invoiceRepository.findAllByOrderByOrderTimeDesc(PageRequest.of(page, size));
+
+        //now fetch the required data
+        Long totalInvoice = invoiceRepository.count();
+        BigDecimal totalAmountSpent = invoiceRepository.getTotalAmount();
+
+        //Create a list to hold all invoice history items
+        List<InvoiceHistoryItemResponse> invoiceHistory = new ArrayList<>();
+
+        //now set the required data expected by InvoiceHistoryItemResponse
+        for(Invoice invoice : invoices.getContent()) {
+
+            InvoiceHistoryItemResponse response = new InvoiceHistoryItemResponse();
+
+            response.setInvoiceNumber(invoice.getInvoiceNumber());
+            response.setOrderId(invoice.getOrderId());
+            response.setOrderTime(invoice.getOrderTime());
+            response.setTotalAmount(invoice.getTotalAmount());
+            response.setInvoiceUrl(invoice.getInvoiceUrl());
+
+            // Add this response to the list
+            invoiceHistory.add(response);
+        }
+
+        //create the wrapper response
+        InvoiceHistoryResponse response = new InvoiceHistoryResponse();
+        response.setTotalInvoice(totalInvoice);
+        response.setTotalAmountSpent(totalAmountSpent);
+        response.setInvoices(invoiceHistory);
+
+        //now return the response
         return response;
     }
 }

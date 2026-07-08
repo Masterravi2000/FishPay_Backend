@@ -132,10 +132,8 @@ public class PaymentService {
 
     public void handleWebhook(String signature, String payload) {
         try {
-            System.out.println("Webhook received");
             //now verify the webhook by taking the verification function from utils same as verify signature
             Utils.verifyWebhookSignature(payload, signature, webhookSecret);
-            System.out.println("Webhook signature verified successfully");
 
             //now create a JsonNode a tree like structure not JSON Obj nor Java Obj
             ObjectMapper objectMapper = new ObjectMapper();
@@ -159,11 +157,9 @@ public class PaymentService {
                     dbPayment = paymentRepository.findByOrderId(orderId);
                     //check is this payment entry is available or not
                     if (dbPayment != null) {
-                        System.out.println("payment entry found successfully headed for reconciliation");
                         //then break this loop and go for  reconciliation
                         break;
                     }
-                    System.out.println("payment entry not found at this point retry initiated");
                     //else delay the next retry of this loop
                     Thread.sleep(500);
                 }
@@ -171,6 +167,10 @@ public class PaymentService {
                 if (dbPayment == null) {
                     return;
                 }
+
+                // Add here
+                System.out.println("DB Status: " + dbPayment.getStatus());
+                System.out.println("Webhook Status: " + status);
 
                 //now check if status matches or not if not then change
                 if(!status.equals(dbPayment.getStatus())) {
@@ -184,12 +184,35 @@ public class PaymentService {
 
                 //now save the changes into the db
                 paymentRepository.save(dbPayment);
-                System.out.println("Reconciliation completed");
+                System.out.println("Saved Status: " + dbPayment.getStatus());
 
             } else if (event.equals("payment.failed")) {
-                //handle failed payment
+                System.out.println("payment failed webhook received");
+                //fetch the payment entity available in webhook payload
+                JsonNode payment = root.get("payload").get("payment").get("entity");
+                //now fetch the required data into created variables
+                String paymentId = payment.get("id").asText();
+                String orderId = payment.get("order_id").asText();
+                String status = payment.get("status").asText();
+                String method = payment.get("method").asText();
+                BigDecimal amount = BigDecimal.valueOf(payment.get("amount").asLong()).divide(BigDecimal.valueOf(100));
+                String currency = payment.get("currency").asText();
+
+                Payment failedPayment = new Payment();
+                failedPayment.setPaymentId(paymentId);
+                failedPayment.setOrderId(orderId);
+                failedPayment.setStatus(status);
+                failedPayment.setPaymentMethod(method);
+                failedPayment.setAmount(amount);
+                failedPayment.setCurrency(currency);
+
+                paymentRepository.save(failedPayment);
+
             } else if (event.equals("order.paid")) {
-                //handle order paid
+                JsonNode payment = root.get("payload").get("payment").get("entity");
+                String orderId = payment.get("order_id").asText();
+                System.out.println("Order paid webhook received");
+                System.out.println("Order ID: " + orderId);
             } else if (event.equals("refund.processed")) {
                 // handle refund
             }
