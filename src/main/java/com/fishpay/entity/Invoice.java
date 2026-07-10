@@ -28,6 +28,8 @@ public class Invoice {
     private BigDecimal deliveryCharges;
     private BigDecimal totalAmount;
 
+    private boolean viewed = false;
+
     @CreationTimestamp
     private LocalDateTime orderTime;
 
@@ -122,6 +124,15 @@ public class Invoice {
     //Setter
     public void setTotalAmount (BigDecimal totalAmount) {
         this.totalAmount = totalAmount;
+    }
+
+    //Getter
+    public boolean isViewed () {
+        return viewed;
+    }
+    //Setter
+    public void setViewed (boolean viewed) {
+        this.viewed = viewed;
     }
 
     //Getter

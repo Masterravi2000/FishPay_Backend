@@ -1,41 +1,32 @@
-package com.fishpay.entity;
+package com.fishpay.dto;
 
 import com.fishpay.util.RefundStatus;
-import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name="refunds")
-public class Refund {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class RefundResponse {
     private String refundId;
     private String paymentId;
     private String orderId;
     private BigDecimal amount;
     private String currency;
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private RefundStatus status;
     private String reason;
-
-    @CreationTimestamp
     private LocalDateTime createdAt;
-    @UpdateTimestamp
-    private LocalDateTime updatedAt;
 
-    public Refund () {
+    public RefundResponse () {
     }
 
-    //Getter
-    public Long getId () {
-        return id;
+    public RefundResponse (String refundId, String paymentId, String orderId, BigDecimal amount, String currency, RefundStatus status, String reason, LocalDateTime createdAt) {
+        this.refundId = refundId;
+        this.paymentId = paymentId;
+        this.orderId = orderId;
+        this.amount = amount;
+        this.currency = currency;
+        this.status = status;
+        this.reason = reason;
+        this.createdAt = createdAt;
     }
 
     //Getter
@@ -105,9 +96,8 @@ public class Refund {
     public LocalDateTime getCreatedAt () {
         return createdAt;
     }
-    //Getter
-    public LocalDateTime getUpdatedAt () {
-        return updatedAt;
+    //Setter
+    public void setCreatedAt (LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
-
 }

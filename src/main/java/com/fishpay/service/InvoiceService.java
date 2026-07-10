@@ -110,6 +110,7 @@ public class InvoiceService {
             response.setOrderTime(invoice.getOrderTime());
             response.setTotalAmount(invoice.getTotalAmount());
             response.setInvoiceUrl(invoice.getInvoiceUrl());
+            response.setViewed(invoice.isViewed());
 
             // Add this response to the list
             invoiceHistory.add(response);
@@ -123,5 +124,13 @@ public class InvoiceService {
 
         //now return the response
         return response;
+    }
+
+    public void markInvoiceAsViewed(String invoiceNumber) {
+        Invoice invoice = invoiceRepository.findByInvoiceNumber(invoiceNumber);
+        if(invoice!=null){
+            invoice.setViewed(true);
+            invoiceRepository.save(invoice);
+        }
     }
 }

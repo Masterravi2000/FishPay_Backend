@@ -27,4 +27,11 @@ public class InvoiceController {
     ) {
         return ResponseEntity.ok(invoiceService.getInvoiceHistory(page,size));
     }
+
+    @PatchMapping("/viewed/{invoiceNumber}")
+    public ResponseEntity<Void> markInvoiceAsViewed(
+            @PathVariable String invoiceNumber) {
+        invoiceService.markInvoiceAsViewed(invoiceNumber);
+        return ResponseEntity.ok().build();
+    }
 }

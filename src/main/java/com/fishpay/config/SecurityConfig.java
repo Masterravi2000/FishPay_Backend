@@ -20,7 +20,10 @@ public class SecurityConfig {
                                 "/api/v1/payments/verify-signature",
                                 "/api/v1/payments/webhook",
                                 "/api/v1/invoices/invoice-status/**",
-                                "/api/v1/invoices/history"
+                                "/api/v1/invoices/history",
+                                "/api/v1/invoices/viewed/**",
+                                "/api/v1/refunds/refund",
+                                "/api/v1/refunds/refund/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

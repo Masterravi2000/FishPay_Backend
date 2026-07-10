@@ -4,7 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fishpay.dto.*;
 import com.fishpay.entity.Payment;
+import com.fishpay.entity.Refund;
 import com.fishpay.repository.PaymentRepository;
+import com.fishpay.repository.RefundRepository;
+import com.fishpay.util.RefundStatus;
 import com.razorpay.Order;
 import com.razorpay.RazorpayClient;
 import com.razorpay.RazorpayException;
@@ -23,13 +26,15 @@ public class PaymentService {
     @Value("${spring.razorpay.webhook-secret}")
     private String webhookSecret;
     private final PaymentRepository paymentRepository;
+    private final RefundRepository refundRepository;
     private final RazorpayClient razorpayClient;
     private final InvoiceService invoiceService;
 
-    public PaymentService(PaymentRepository paymentRepository, RazorpayClient razorpayClient, InvoiceService invoiceService){
+    public PaymentService(PaymentRepository paymentRepository, RazorpayClient razorpayClient, InvoiceService invoiceService, RefundRepository refundRepository){
         this.paymentRepository = paymentRepository;
         this.razorpayClient = razorpayClient;
         this.invoiceService = invoiceService;
+        this.refundRepository = refundRepository;
     }
 
     //createOrder method
@@ -141,6 +146,7 @@ public class PaymentService {
 
             String event = root.get("event").asText();
 
+            //in case of payment success
             if (event.equals("payment.captured")) {
                 //get the payment entity from webhook payload sent by razorpay
                 JsonNode payment = root.get("payload").get("payment").get("entity");
@@ -168,10 +174,6 @@ public class PaymentService {
                     return;
                 }
 
-                // Add here
-                System.out.println("DB Status: " + dbPayment.getStatus());
-                System.out.println("Webhook Status: " + status);
-
                 //now check if status matches or not if not then change
                 if(!status.equals(dbPayment.getStatus())) {
                     dbPayment.setStatus(status);
@@ -184,10 +186,9 @@ public class PaymentService {
 
                 //now save the changes into the db
                 paymentRepository.save(dbPayment);
-                System.out.println("Saved Status: " + dbPayment.getStatus());
 
+                //in case of payment failed
             } else if (event.equals("payment.failed")) {
-                System.out.println("payment failed webhook received");
                 //fetch the payment entity available in webhook payload
                 JsonNode payment = root.get("payload").get("payment").get("entity");
                 //now fetch the required data into created variables
@@ -208,13 +209,36 @@ public class PaymentService {
 
                 paymentRepository.save(failedPayment);
 
+                //in case of order paid
             } else if (event.equals("order.paid")) {
                 JsonNode payment = root.get("payload").get("payment").get("entity");
                 String orderId = payment.get("order_id").asText();
                 System.out.println("Order paid webhook received");
                 System.out.println("Order ID: " + orderId);
+
+                //in case of refund
             } else if (event.equals("refund.processed")) {
-                // handle refund
+                System.out.println("yes refund webhook is received");
+                //Read the refund entity from the webhook payload
+                JsonNode refund = root.get("payload").get("refund").get("entity");
+                //now extract the required fields
+                String refundId = refund.get("id").asText();
+                String paymentId = refund.get("payment_id").asText();
+                RefundStatus status = RefundStatus.valueOf(refund.get("status").asText().toUpperCase());
+                //Now find the Refund record by refundId given by webhook payload from DB
+                Refund dbRefund = refundRepository.findByRefundId(refundId);
+                if(dbRefund == null) return;
+                //now update the status from PENDING -> PROCESSED
+                dbRefund.setStatus(status);
+                //now save the status into the refund entity
+                refundRepository.save(dbRefund);
+                //now find the payment
+                Payment payment = paymentRepository.findByPaymentId(paymentId);
+                if(payment == null) return;
+                //now set the refunded true
+                payment.setRefunded(true);
+                //now save the payment
+                paymentRepository.save(payment);
             }
 
             System.out.println(event);

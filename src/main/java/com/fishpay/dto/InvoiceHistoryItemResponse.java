@@ -11,16 +11,18 @@ public class InvoiceHistoryItemResponse {
     private LocalDateTime orderTime;
     private BigDecimal totalAmount;
     private String invoiceUrl;
+    private boolean viewed;
 
     public InvoiceHistoryItemResponse () {
     }
 
-    public InvoiceHistoryItemResponse (String invoiceNumber, String orderId, LocalDateTime orderTime, BigDecimal totalAmount, String invoiceUrl) {
+    public InvoiceHistoryItemResponse (String invoiceNumber, String orderId, LocalDateTime orderTime, BigDecimal totalAmount, String invoiceUrl, boolean viewed) {
         this.invoiceNumber = invoiceNumber;
         this.orderId = orderId;
         this.orderTime = orderTime;
         this.totalAmount = totalAmount;
         this.invoiceUrl = invoiceUrl;
+        this.viewed = viewed;
     }
 
     //Getter
@@ -66,5 +68,14 @@ public class InvoiceHistoryItemResponse {
     //Setter
     public void setInvoiceUrl (String invoiceUrl) {
         this.invoiceUrl = invoiceUrl;
+    }
+
+    //Getter
+    public boolean isViewed () {
+        return viewed;
+    }
+    //Setter
+    public void setViewed (boolean viewed) {
+        this.viewed = viewed;
     }
 }

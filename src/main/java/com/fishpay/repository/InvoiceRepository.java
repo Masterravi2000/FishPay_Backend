@@ -14,4 +14,5 @@ public interface InvoiceRepository
     Page<Invoice> findAllByOrderByOrderTimeDesc(Pageable pageable);
     @Query("SELECT COALESCE(SUM(i.totalAmount), 0) FROM Invoice i")
     BigDecimal getTotalAmount();
+    Invoice findByInvoiceNumber(String invoiceNumber);
 }

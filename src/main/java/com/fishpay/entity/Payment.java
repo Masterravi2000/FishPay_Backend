@@ -21,6 +21,7 @@ public class Payment {
     private String status;
     private Long userId;
     private String paymentMethod;
+    private boolean refunded = false;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -97,5 +98,14 @@ public class Payment {
     //Setter
     public void setPaymentMethod (String paymentMethod) {
         this.paymentMethod = paymentMethod;
+    }
+
+    //Getter
+    public boolean isRefunded () {
+        return refunded;
+    }
+    //Setter
+    public void setRefunded (boolean refunded) {
+        this.refunded = refunded;
     }
 }
