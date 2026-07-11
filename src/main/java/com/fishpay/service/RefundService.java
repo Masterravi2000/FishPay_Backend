@@ -1,5 +1,7 @@
 package com.fishpay.service;
 
+import com.fishpay.dto.RefundHistoryItemResponse;
+import com.fishpay.dto.RefundHistoryResponse;
 import com.fishpay.dto.RefundRequest;
 import com.fishpay.dto.RefundResponse;
 import com.fishpay.entity.Payment;
@@ -10,9 +12,14 @@ import com.razorpay.RazorpayClient;
 import com.razorpay.RazorpayException;
 import com.razorpay.Refund;
 import org.json.JSONObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class RefundService {
@@ -83,6 +90,48 @@ public class RefundService {
         response.setCreatedAt(refund.getCreatedAt());
 
         //now return the response
+        return response;
+    }
+
+    public RefundHistoryResponse getRefundHistory(int page, int size) {
+        //First create a Pageable which will tell the spring data JPA which page and how many records
+        Pageable pageable = PageRequest.of(page, size);
+
+        //now fetch the group of refund records
+        Page<com.fishpay.entity.Refund> refunds = refundRepository.findAll(pageable);
+
+        //now create List<RefundHistoryItemResponse> obj ArrayList
+        List<RefundHistoryItemResponse> refundsList = new ArrayList<>();
+
+        //Now start the loop for looping through each refunds item and map Refund entity to RefundHistoryItemResponse
+        for(com.fishpay.entity.Refund refund : refunds.getContent()) {
+            //now create an RefundHistoryResponse obj and assign the required data into it
+            RefundHistoryItemResponse refundItem = new RefundHistoryItemResponse();
+            refundItem.setRefundId(refund.getRefundId());
+            refundItem.setOrderId(refund.getOrderId());
+            refundItem.setAmount(refund.getAmount());
+            refundItem.setStatus(refund.getStatus());
+            refundItem.setRequestedAt(refund.getCreatedAt());
+            refundItem.setCompletedAt(refund.getUpdatedAt());
+
+            //mow put this refundItem into the refundList
+            refundsList.add(refundItem);
+        }
+
+        //Now calculate totalRefunds counts
+        Long totalRefunds = refundRepository.count();
+        BigDecimal totalRefundAmount = refundRepository.getTotalAmount();
+        Long totalRefundsInProgress = refundRepository.getTotalRefundsUnderProgress();
+
+        //Now create the RefundHistoryResponse obj sets its required data and return the response
+        RefundHistoryResponse response = new RefundHistoryResponse();
+        response.setTotalRefunds(totalRefunds);
+        response.setTotalRefundAmount(totalRefundAmount);
+        response.setTotalRefundsInProgress(totalRefundsInProgress);
+        response.setRefunds(refundsList);
+        response.setPage(page);
+        response.setTotalPage(refunds.getTotalPages());
+
         return response;
     }
 }

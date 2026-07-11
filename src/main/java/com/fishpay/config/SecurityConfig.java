@@ -23,7 +23,8 @@ public class SecurityConfig {
                                 "/api/v1/invoices/history",
                                 "/api/v1/invoices/viewed/**",
                                 "/api/v1/refunds/refund",
-                                "/api/v1/refunds/refund/**"
+                                "/api/v1/refunds/refund/**",
+                                "/api/v1/refunds/history"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
