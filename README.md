@@ -12,82 +12,35 @@ Although FishPay currently integrates with **Razorpay**, its modular architectur
 
 # ✨ Features
 
-## 💳 Payment Management
-
-- Razorpay Order Creation
-- Secure Payment Verification
-- Digital Signature Validation
-- Payment Success Flow
-- Payment Failure Handling
-- Payment Status Tracking
+### 💳 Payment
+- Order Creation
+- Payment Verification
 - Payment History
-- Transaction Statistics
-- Merchant Ready REST APIs
+- Transaction Tracking
 
----
-
-## 📄 Invoice Management
-
+### 📄 Invoice
 - Automatic Invoice Generation
-- Cloud PDF Storage
-- Invoice Download
 - Invoice History
-- Total Spending Analytics
-- Viewed / Unread Tracking
-- Paginated Invoice Retrieval
+- PDF Download
 
----
-
-## 💰 Refund Management
-
-- Refund Creation
-- Refund Status Tracking
+### 💰 Refund
+- Refund Processing
+- Refund Status
 - Refund History
-- Refund Analytics
-- Webhook Based Refund Synchronization
-- Payment Refund Synchronization
 
----
-
-## 🔔 Webhook Processing
-
-- Signature Verification
+### 🔔 Webhooks
 - Payment Reconciliation
-- Refund Reconciliation
-- Event Synchronization
-- Automatic Database Updates
+- Refund Synchronization
 
----
-
-## 📊 Analytics
-
-- Payment Statistics
-- Invoice Statistics
-- Refund Statistics
-- Total Spending
-- Total Refunded Amount
-- Total Payments
-- Total Refunds In Progress
-
----
-
-## ⚡ Performance
-
-- Asynchronous Invoice Generation
+### ⚡ Performance
+- Async Invoice Generation
 - Fast Payment Confirmation
-- Background PDF Processing
-- Cloudinary Integration
-- Optimized REST APIs
 - Backend Pagination
 
----
-
-## 🐳 Infrastructure
-
-- Docker Containerization
-- PostgreSQL Persistence
-- Environment Variable Configuration
-- Modular Spring Boot Architecture
+### 🐳 Infrastructure
+- Dockerized Backend
+- PostgreSQL
+- RESTful APIs
 
 ---
 
