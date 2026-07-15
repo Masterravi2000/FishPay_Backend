@@ -13,11 +13,16 @@ import com.razorpay.RazorpayClient;
 import com.razorpay.RazorpayException;
 import com.razorpay.Utils;
 import org.json.JSONObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class PaymentService {
@@ -245,5 +250,50 @@ public class PaymentService {
         } catch (RazorpayException | IOException | InterruptedException e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    public PaymentHistoryResponse getPaymentHistory (int page, int size) {
+        //First create a Pageable which will tell the spring data JPA which page and how many records
+        Pageable pageable = PageRequest.of(page, size);
+
+        //now fetch the group of payment records
+        Page<Payment> payments = paymentRepository.findAll(pageable);
+
+        //now create a List of PaymentHistoryItem response obj for adding the PaymentHistoryItemResponse
+        List<PaymentHistoryItemResponse> paymentsList = new ArrayList<>();
+        // start the loop for fetching from payment entity and storing the required data into PaymentHistoryItemResponse
+        for(Payment payment : payments.getContent()) {
+            //now create the PaymentHistoryItemResponse obj
+            PaymentHistoryItemResponse paymentItem = new PaymentHistoryItemResponse();
+            //now set all the required data by this response
+            paymentItem.setPaymentId(payment.getPaymentId());
+            paymentItem.setOrderId(payment.getOrderId());
+            paymentItem.setAmount(payment.getAmount());
+            paymentItem.setCurrency(payment.getCurrency());
+            paymentItem.setStatus(payment.getStatus());
+            paymentItem.setPaymentMethod(payment.getPaymentMethod());
+            paymentItem.setRefunded(payment.isRefunded());
+            paymentItem.setCreatedAt(payment.getCreatedAt());
+
+            //now simply put this paymentItem into the paymentsList
+            paymentsList.add(paymentItem);
+        }
+
+        Long totalPayments = paymentRepository.count();
+        Long totalSuccessfulPayments = paymentRepository.getTotalSuccessfulPayments();
+        Long totalFailedPayments = paymentRepository.getTotalFailedPayments();
+        BigDecimal totalAmountPaid = paymentRepository.getTotalAmountPaid();
+
+        //Now create the final response obj PaymentHistoryResponse
+        PaymentHistoryResponse response = new PaymentHistoryResponse();
+        response.setTotalPayments(totalPayments);
+        response.setTotalSuccessfulPayments(totalSuccessfulPayments);
+        response.setTotalFailedPayments(totalFailedPayments);
+        response.setTotalAmountPaid(totalAmountPaid);
+        response.setPayments(paymentsList);
+        response.setPage(page);
+        response.setTotalPages(payments.getTotalPages());
+
+        return response;
     }
 }

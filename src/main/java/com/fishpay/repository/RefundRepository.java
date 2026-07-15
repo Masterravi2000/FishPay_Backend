@@ -11,7 +11,10 @@ import java.math.BigDecimal;
 public interface RefundRepository
         extends JpaRepository<Refund, Long>{
     Refund findByRefundId (String refundId);
-    @Query("SELECT COALESCE(SUM(r.amount), 0) FROM Refund r")
+    @Query("""
+    SELECT COALESCE(SUM(r.amount), 0)
+    FROM Refund r
+    WHERE r.status = com.fishpay.util.RefundStatus.PROCESSED""")
     BigDecimal getTotalAmount();
     @Query("""
     SELECT COUNT(r)

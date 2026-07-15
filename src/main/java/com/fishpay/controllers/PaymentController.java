@@ -1,9 +1,6 @@
 package com.fishpay.controllers;
 
-import com.fishpay.dto.CreateOrderRequest;
-import com.fishpay.dto.CreateOrderResponse;
-import com.fishpay.dto.GenerateInvoiceResponse;
-import com.fishpay.dto.VerifyPaymentRequest;
+import com.fishpay.dto.*;
 import com.fishpay.service.PaymentService;
 import com.razorpay.RazorpayException;
 import org.springframework.http.ResponseEntity;
@@ -35,5 +32,13 @@ public class PaymentController {
     ) {
         paymentService.handleWebhook(signature, payload);
         return ResponseEntity.ok("Webhook received");
+    }
+
+    @GetMapping("/history")
+    public ResponseEntity<PaymentHistoryResponse> getPaymentHistory (
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+       return ResponseEntity.ok(paymentService.getPaymentHistory(page, size));
     }
 }

@@ -1,49 +1,30 @@
-package com.fishpay.entity;
-
-import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+package com.fishpay.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "payments")
-public class Payment {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String orderId;
+public class PaymentHistoryItemResponse {
     private String paymentId;
+    private String orderId;
     private BigDecimal amount;
     private String currency;
     private String status;
-    private Long userId;
     private String paymentMethod;
-    private boolean refunded = false;
-
-    @CreationTimestamp
+    private Boolean refunded;
     private LocalDateTime createdAt;
-    @UpdateTimestamp
-    private LocalDateTime updatedAt;
 
-    //No-args constructor
-    public Payment () {
+    public PaymentHistoryItemResponse () {
     }
 
-    //Getter
-    public Long getId () {
-        return id;
-    }
-
-    //Getter
-    public String getOrderId () {
-        return orderId;
-    }
-    //Setter
-    public void setOrderId (String orderId) {
+    public PaymentHistoryItemResponse (String paymentId, String orderId, BigDecimal amount, String currency, String status, String paymentMethod, Boolean refunded, LocalDateTime createdAt) {
+        this.paymentId = paymentId;
         this.orderId = orderId;
+        this.amount = amount;
+        this.currency = currency;
+        this.status = status;
+        this.paymentMethod = paymentMethod;
+        this.refunded = refunded;
+        this.createdAt = createdAt;
     }
 
     //Getter
@@ -56,11 +37,20 @@ public class Payment {
     }
 
     //Getter
+    public String getOrderId () {
+        return orderId;
+    }
+    //Setter
+    public void setOrderId (String orderId) {
+        this.orderId = orderId;
+    }
+
+    //Getter
     public BigDecimal getAmount () {
         return amount;
     }
     //Setter
-    public void setAmount (BigDecimal amount){
+    public void setAmount (BigDecimal amount) {
         this.amount = amount;
     }
 
@@ -69,7 +59,7 @@ public class Payment {
         return currency;
     }
     //Setter
-    public void setCurrency (String currency){
+    public void setCurrency (String currency) {
         this.currency = currency;
     }
 
@@ -78,17 +68,8 @@ public class Payment {
         return status;
     }
     //Setter
-    public void setStatus (String status){
+    public void setStatus (String status) {
         this.status = status;
-    }
-
-    //Getter
-    public Long getUserId () {
-        return userId;
-    }
-    //Setter
-    public void setUserId (Long userId){
-        this.userId = userId;
     }
 
     //Getter
@@ -101,16 +82,20 @@ public class Payment {
     }
 
     //Getter
-    public boolean isRefunded () {
+    public Boolean getRefunded () {
         return refunded;
     }
     //Setter
-    public void setRefunded (boolean refunded) {
+    public void setRefunded (Boolean refunded) {
         this.refunded = refunded;
     }
 
     //Getter
     public LocalDateTime getCreatedAt () {
         return createdAt;
+    }
+    //Setter
+    public void setCreatedAt (LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }
