@@ -44,6 +44,19 @@ Although FishPay currently integrates with **Razorpay**, its modular architectur
 
 ---
 
+# ⚡ Payment Performance
+
+| Stage | Time |
+|------------------------------|-----------|
+| Signature Verification | ~50 ms |
+| Payment Persistence | ~100 ms |
+| Success Response | **< 750 ms** |
+| Invoice Generation (Async) | Background |
+| Cloudinary Upload | Background |
+| Invoice URL Persistence | Background |
+
+---
+
 # ⭐ Engineering Problems Solved
 
 Unlike a simple payment gateway integration, FishPay addresses several real-world backend engineering challenges commonly encountered in payment systems.
