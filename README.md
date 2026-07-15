@@ -200,6 +200,76 @@ The backend is fully containerized using Docker, making deployments reproducible
 
 ---
 
+
+```
+FishPay_Backend/
+│
+├── src/main/java/com/fishpay
+│
+├── config/
+│   ├── RazorpayConfig.java
+│   ├── SecurityConfig.java
+│   ├── CloudinaryConfig.java
+│   └── AsyncConfig.java
+│
+├── controllers/
+│   ├── PaymentController.java
+│   ├── InvoiceController.java
+│   ├── RefundController.java
+│   ├── WebhookController.java
+│   └── HealthController.java
+│
+├── service/
+│   ├── PaymentService.java
+│   ├── InvoiceService.java
+│   ├── RefundService.java
+│   ├── WebhookService.java
+│   ├── AsyncInvoiceService.java
+│   └── CloudinaryService.java
+│
+├── repository/
+│   ├── PaymentRepository.java
+│   ├── InvoiceRepository.java
+│   ├── InvoiceItemRepository.java
+│   └── RefundRepository.java
+│
+├── entity/
+│   ├── Payment.java
+│   ├── Invoice.java
+│   ├── InvoiceItem.java
+│   └── Refund.java
+│
+├── dto/
+│   ├── CreateOrderRequest.java
+│   ├── VerifyPaymentRequest.java
+│   ├── VerifyPaymentResponse.java
+│   ├── InvoiceHistoryResponse.java
+│   ├── RefundRequest.java
+│   ├── RefundResponse.java
+│   ├── RefundHistoryResponse.java
+│   ├── PaymentHistoryResponse.java
+│   └── ...
+│
+├── util/
+│   ├── RazorpaySignatureUtil.java
+│   ├── InvoiceGenerator.java
+│   ├── RefundStatus.java
+│   └── PaymentStatus.java
+│
+├── exception/
+│
+├── FishpayApplication.java
+│
+├── src/main/resources/
+│   ├── application.yml
+│   └── ...
+│
+├── Dockerfile
+├── pom.xml
+└── README.md
+```
+
+
 ## 🧱 8. Modular Spring Boot Architecture
 
 The backend follows production-standard layered architecture.
