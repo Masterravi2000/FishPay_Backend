@@ -12,6 +12,7 @@ import com.lowagie.text.Phrase;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.nio.file.Files;
 import java.util.List;
 
 @Service
@@ -32,13 +33,8 @@ public class PdfService {
         List<InvoiceItem> items = invoiceItemRepository.findByInvoiceId(invoiceId);
 
         try {
-            File tempDir = new File("temp");
-            System.out.println("Temp exists: " + tempDir.exists());
-            System.out.println("Temp path: " + tempDir.getAbsolutePath());
-            System.out.println("Can write: " + tempDir.canWrite());
-
             // Create PDF file - File decides where the file will be stored and what it will be named
-            File pdfFile = new File("temp/invoice_" + invoiceId + ".pdf");
+            File pdfFile = Files.createTempFile("invoice_" + invoiceId + "_", ".pdf").toFile();
 
             // Create document - here Document holds the PDF content in memory.
             Document document = new Document();
