@@ -32,6 +32,11 @@ public class PdfService {
         List<InvoiceItem> items = invoiceItemRepository.findByInvoiceId(invoiceId);
 
         try {
+            File tempDir = new File("temp");
+            System.out.println("Temp exists: " + tempDir.exists());
+            System.out.println("Temp path: " + tempDir.getAbsolutePath());
+            System.out.println("Can write: " + tempDir.canWrite());
+
             // Create PDF file - File decides where the file will be stored and what it will be named
             File pdfFile = new File("temp/invoice_" + invoiceId + ".pdf");
 
