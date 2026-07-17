@@ -1,3 +1,8 @@
+
+<p align="center">
+  <img src="assets/top_banner.png" width="100%" />
+</p>
+
 # FishPay_Backend
 
 ## 💳 Production-Oriented Payment Management Infrastructure
