@@ -49,6 +49,16 @@ Although FishPay currently integrates with **Razorpay**, its modular architectur
 
 ---
 
+## 🏗️ System Design
+
+FishPay follows a modular payment workflow where payment requests are securely processed through Razorpay, verified using cryptographic signature validation, persisted in PostgreSQL, and integrated with asynchronous invoice generation, refund management, and webhook-based reconciliation.
+
+### Data Flow & Architecture
+
+🔗 https://miro.com/app/board/uXjVHcgkeag=/?moveToWidget=3458764678079849228&cot=14
+
+---
+
 # ⚡ Payment Performance
 
 | Stage | Time |
