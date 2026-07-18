@@ -55,7 +55,7 @@ FishPay follows a modular payment workflow where payment requests are securely p
 
 ### Data Flow & Architecture
 
-🔗 https://miro.com/app/board/uXjVHcgkeag=/?moveToWidget=3458764678079849228&cot=14
+🔗 https://miro.com/app/board/uXjVHcgkeag=/?moveToWidget=3458764678553613549&cot=14
 
 ---
 
